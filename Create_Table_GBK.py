@@ -1,24 +1,30 @@
 #!/usr/bin/python
 import argparse
+
 from Bio import SeqIO
 from Bio.SeqFeature import FeatureLocation
 from Bio.SeqFeature import ExactPosition
+
 import os
 import csv
 import sys
-import pdb
 
 def main():
-	if(len(sys.argv) != 4):
-		raise Exception("you need four arguements, two genbank files, the output file for the shared sequences, and a transposed list of POGO accession numbers")
+
+	parser = argparse.ArgumentParser(description = "")
+	parser.add_argument("-g", "--gbk-files", help="two genbank files", nargs=2, required=True)
+	parser.add_argument("-m", "--ortholog-map-file", help="ortholog mapping file", required=True)
+	parser.add_argument("-o", "--output-file", help="output file name", required=True)
+
+	args = parser.parse_args()
 	
-	accession_fh = open(sys.argv[3], 'r');
-	fh1 = open(sys.argv[1], 'r')
-	fh2 = open(sys.argv[2], 'r')
+	accession_fh = open(args.ortholog_map_file, 'r');
+	fh1 = open(args.gbk_files[0], 'r')
+	fh2 = open(args.gbk_files[1], 'r')
 	gb1 = SeqIO.read(fh1, "genbank")
 	gb2 = SeqIO.read(fh2, "genbank")
 	
-	oh = open("table.csv", 'w')
+	oh = open(args.output_file, 'w')
 
 	dic1 = {}
 	dic2 = {}
@@ -48,6 +54,7 @@ def main():
 	r = csv.reader(accession_fh, delimiter=',', quotechar='|')
 
 	for row in r:
+		# make sure we have 3 columns before we add it to our list
 		if(len(row) == 3) and all([len(r) > 0 for r in row]):
 			comparison_list.append([row[1], row[2]]);
 
